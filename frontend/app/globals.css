@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --glass: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent: #7000ff;
+  }
+
+  body {
+    background: #020205;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* --- PREMIUM BACKGROUND MESH --- */
+.bg-wrapper {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  background: radial-gradient(circle at 50% 50%, #0a0a1a 0%, #020205 100%);
+  top: 0;
+  left: 0;
+}
+
+.liquid-blob {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: linear-gradient(135deg, #7000ff 0%, #00d4ff 100%);
+  filter: blur(120px);
+  border-radius: 50%;
+  opacity: 0.25;
+  animation: float 20s infinite alternate ease-in-out;
+  left: 20%;
+  top: 20%;
+}
+
+@keyframes float {
+  0% { transform: translate(-10%, -10%) rotate(0deg); }
+  100% { transform: translate(30%, 20%) rotate(360deg); }
+}
+
+/* --- UI ELEMENTS --- */
+.glass-card {
+  position: relative;
+  background: var(--glass);
+  border-radius: 30px;
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-10px) scale(1.02);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  transform: scale(0);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+
+.glass-card-hover:hover::before {
+  transform: scale(1);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 50px;
+  color: #00d4ff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* Grain for texture */
+.grain {
+  position: fixed;
+  inset: 0;
+  background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 10;
+}
