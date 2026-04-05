@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { LeetCodeStatsResponse, UserProfileResponse, RankedUser } from '../types';
 
-const BASE_URL = 'https://alfa-leetcode-api.onrender.com';
+const BASE_URL = process.env.LEETCODE_API_BASE_URL || 'https://alfa-leetcode-api.onrender.com';
 
 export const fetchUserStats = async (username: string): Promise<RankedUser> => {
     try {
