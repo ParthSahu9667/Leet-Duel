@@ -2,7 +2,7 @@
 
 import React from "react";
 import { UserProfileExpanded } from "../../../components/features/profile/UserProfileExpanded";
-import { AnimatedBackground } from "../../../components/ui/AnimatedBackground";
+import { AnimatedBackground } from "../../../components/shared/AnimatedBackground";
 
 export default function ProfilePage(props: { params: Promise<{ username: string }> }) {
   const [username, setUsername] = React.useState<string>("");

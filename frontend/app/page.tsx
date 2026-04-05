@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Dashboard } from "@/components/ui/Dashboard";
-import { AnimatedBackground } from "@/components/ui/AnimatedBackground";
+import { Dashboard } from "@/components/features/dashboard/Dashboard";
+import { AnimatedBackground } from "@/components/shared/AnimatedBackground";
 import { NavBar } from "@/components/shared/NavBar";
 import { motion } from "framer-motion";
 import Link from "next/link";
