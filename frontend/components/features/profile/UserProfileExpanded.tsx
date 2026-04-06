@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ExpandedUserProfile } from "../../../types/type";
 import { fetchLeetCodeProfile } from "../../../lib/api/profile";
-import { NavBar } from "../../shared/NavBar";
 
 // Import isolated widgets
 import { PlayerHeaderWidget } from "./widgets/PlayerHeaderWidget";
@@ -66,8 +65,6 @@ export const UserProfileExpanded = ({ username }: { username: string }) => {
       animate="show"
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
     >
-      <NavBar />
-
       <motion.div variants={itemVariants} className="lg:col-span-3">
         <PlayerHeaderWidget user={user} />
       </motion.div>
