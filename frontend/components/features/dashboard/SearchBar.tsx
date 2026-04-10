@@ -1,17 +1,13 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Search, Loader2, Plus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface SearchBarProps {
-  onSearch: (users: string) => void;
-  isLoading: boolean;
-}
+import { SearchBarProps } from "@/types/type";
 
-export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({ usernames, setUsernames, onSearch, isLoading }) => {
   const [input, setInput] = useState("");
-  const [usernames, setUsernames] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 

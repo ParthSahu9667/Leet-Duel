@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface LanguageStat {
   languageName: string;
   problemsSolved: number;
@@ -47,4 +49,68 @@ export interface ExpandedUserProfile {
   ratingPercentile: number;
   calendar: SubmissionCalendar;
   badges: Badge[];
+}
+
+export interface RankedUser {
+  username: string;
+  avatar: string;
+  powerScore?: number;
+  solvedProblem: number;
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+  avgQuestionsPerDay?: number;
+  error: string | null;
+}
+
+export interface LeaderboardTableProps {
+  users: RankedUser[];
+  onRemoveUser: (username: string) => void;
+}
+
+export interface WidgetProps {
+  user: ExpandedUserProfile;
+}
+
+export interface CardTiltInnerProps {
+  children: ReactNode;
+  className?: string;
+  senstivity?: number;
+}
+
+export interface SearchBarProps {
+  usernames: string[];
+  setUsernames: React.Dispatch<React.SetStateAction<string[]>>;
+  onSearch: (users: string) => void;
+  isLoading: boolean;
+}
+
+export interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+  opacity: number;
+  hue: number;
+  pulseSpeed: number;
+  pulsePhase: number;
+}
+
+export interface Meteor {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  length: number;
+  opacity: number;
+  life: number;
+  maxLife: number;
+  hue: number;
+}
+
+export interface CustomDropdownProps {
+  value: number | string;
+  options: { label: string; value: number | string }[];
+  onChange: (val: any) => void;
 }

@@ -25,5 +25,6 @@ export interface RankedUser {
     ranking: number;
     reputation: number;
     powerScore?: number;
+    avgQuestionsPerDay?: number;
     error: string | null;
 }

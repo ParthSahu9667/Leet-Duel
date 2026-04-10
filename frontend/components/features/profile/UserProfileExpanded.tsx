@@ -8,9 +8,7 @@ import { fetchLeetCodeProfile } from "../../../lib/api/profile";
 // Import isolated widgets
 import { PlayerHeaderWidget } from "./widgets/PlayerHeaderWidget";
 import { ContestMomentumWidget } from "./widgets/ContestMomentumWidget";
-import { LanguageMasteryWidget } from "./widgets/LanguageMasteryWidget";
-import { ActivityHeatmapWidget } from "./widgets/ActivityHeatmapWidget";
-import { TrophyCabinetWidget } from "./widgets/TrophyCabinetWidget";
+import { AverageQuestionsWidget } from "./widgets/AverageQuestionsWidget";
 
 export const UserProfileExpanded = ({ username }: { username: string }) => {
   const [user, setUser] = useState<ExpandedUserProfile | null>(null);
@@ -75,16 +73,8 @@ export const UserProfileExpanded = ({ username }: { username: string }) => {
         </motion.div>
       )}
 
-      <motion.div variants={itemVariants}>
-        <LanguageMasteryWidget user={user} />
-      </motion.div>
-
       <motion.div variants={itemVariants} className={user.contests && user.contests.length > 0 ? "md:col-span-2" : "md:col-span-2"}>
-        <ActivityHeatmapWidget user={user} />
-      </motion.div>
-
-      <motion.div variants={itemVariants} className="lg:col-span-3">
-        <TrophyCabinetWidget user={user} />
+        <AverageQuestionsWidget user={user} />
       </motion.div>
     </motion.div>
   );

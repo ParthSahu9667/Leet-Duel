@@ -1,19 +1,13 @@
-import axios from 'axios';
-import { LeetCodeStatsResponse, UserProfileResponse, RankedUser } from '../types';
+import { RankedUser } from '../types';
+import { LeetCode } from 'leetcode-query';
 
-const BASE_URL = process.env.LEETCODE_API_BASE_URL || 'https://alfa-leetcode-api.onrender.com';
+const leetcode = new LeetCode();
 
 export const fetchUserStats = async (username: string): Promise<RankedUser> => {
     try {
-        const [statsResponse, profileResponse] = await Promise.all([
-            axios.get<LeetCodeStatsResponse>(`${BASE_URL}/${username}/solved`).catch(() => null),
-            axios.get<UserProfileResponse>(`${BASE_URL}/${username}`).catch(() => null)
-        ]);
-        
-        let statsData = statsResponse ? statsResponse.data : {};
-        let profileData = profileResponse ? profileResponse.data : {};
+        const user = await leetcode.user(username);
 
-        if (statsData.errors || profileData.errors) {
+        if (!user || user.matchedUser === null) {
             return { 
                 username, 
                 solvedProblem: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0,
@@ -22,16 +16,49 @@ export const fetchUserStats = async (username: string): Promise<RankedUser> => {
             };
         }
 
+        const matchedUser = user.matchedUser;
+        const profileInfo = matchedUser.profile;
+        const submitStats = matchedUser.submitStats?.acSubmissionNum || [];
+
+        // Calculate solved metrics
+        const totalSolved = submitStats.find((s: any) => s.difficulty === 'All')?.count || 0;
+        const easySolved = submitStats.find((s: any) => s.difficulty === 'Easy')?.count || 0;
+        const mediumSolved = submitStats.find((s: any) => s.difficulty === 'Medium')?.count || 0;
+        const hardSolved = submitStats.find((s: any) => s.difficulty === 'Hard')?.count || 0;
+        
+        let avgQuestionsPerDay = 0;
+        
+        // Calculate 30 day avg directly
+        if (matchedUser.submissionCalendar) {
+            try {
+                const parsedCal = JSON.parse(matchedUser.submissionCalendar);
+                const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+                
+                let sum = 0;
+                Object.keys(parsedCal).forEach((tsStr) => {
+                    const ts = parseInt(tsStr) * 1000;
+                    if (ts >= thirtyDaysAgo) {
+                       sum += parsedCal[tsStr]; 
+                    }
+                });
+                
+                avgQuestionsPerDay = sum / 30;
+            } catch (e) {
+                console.warn(`Failed to parse submission calendar for ${username}`);
+            }
+        }
+
         return {
-            username,
-            solvedProblem: statsData.solvedProblem || 0,
-            easySolved: statsData.easySolved || 0,
-            mediumSolved: statsData.mediumSolved || 0,
-            hardSolved: statsData.hardSolved || 0,
-            avatar: profileData.avatar || '',
-            name: profileData.name || username,
-            ranking: profileData.ranking || 0,
-            reputation: profileData.reputation || 0,
+            username: matchedUser.githubUrl ? username : username,
+            solvedProblem: totalSolved,
+            easySolved: easySolved,
+            mediumSolved: mediumSolved,
+            hardSolved: hardSolved,
+            avatar: profileInfo?.userAvatar || '',
+            name: profileInfo?.realName || username,
+            ranking: profileInfo?.ranking || 0,
+            reputation: profileInfo?.reputation || 0,
+            avgQuestionsPerDay: parseFloat(avgQuestionsPerDay.toFixed(2)),
             error: null
         };
     } catch (error: any) {

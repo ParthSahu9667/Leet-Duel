@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
+import { CardTiltInnerProps } from "@/types/type";
 
-export const CardTiltInner = ({ children, className = "", senstivity = 25 }: { children: React.ReactNode, className?: string, senstivity?: number }) => {
+export const CardTiltInner = ({ children, className = "", senstivity = 25 }: CardTiltInnerProps) => {
   return (
     <div
       className={`glass-card glass-card-hover p-6 h-full cursor-pointer relative ${className}`}

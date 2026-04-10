@@ -2,29 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  opacity: number;
-  hue: number;
-  pulseSpeed: number;
-  pulsePhase: number;
-}
-
-interface Meteor {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  length: number;
-  opacity: number;
-  life: number;
-  maxLife: number;
-  hue: number;
-}
+import { Particle, Meteor } from "@/types/type";
 
 export const AnimatedBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);

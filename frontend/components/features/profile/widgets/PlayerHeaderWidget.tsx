@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { ExpandedUserProfile } from "../../../../types/type";
+import { WidgetProps } from "@/types/type";
 import { CardTiltInner } from "../CardTiltInner";
 import { Flame } from "lucide-react";
 
-export const PlayerHeaderWidget = ({ user }: { user: ExpandedUserProfile }) => {
+export const PlayerHeaderWidget = ({ user }: WidgetProps) => {
   return (
-    <CardTiltInner className="flex flex-col md:flex-row items-center md:items-start gap-8 z-10" senstivity={350}>
+    <CardTiltInner className="flex flex-col md:flex-row items-center md:items-start gap-8 z-10" senstivity={750}>
       <div className="avatar-ring flex-shrink-0 relative group">
         <img src={user.avatar} alt={user.username} className="w-28 h-28 object-cover shadow-[0_0_40px_rgba(129,140,248,0.3)] transition-transform duration-500 group-hover:scale-105" />
       </div>

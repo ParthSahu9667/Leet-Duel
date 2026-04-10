@@ -2,23 +2,9 @@
 
 import React, { useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
-import { Trophy, Crown, Medal } from "lucide-react";
+import { Trophy, Crown, Medal, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-export interface RankedUser {
-  username: string;
-  avatar: string;
-  powerScore?: number;
-  solvedProblem: number;
-  easySolved: number;
-  mediumSolved: number;
-  hardSolved: number;
-  error: string | null;
-}
-
-interface LeaderboardTableProps {
-  users: RankedUser[];
-}
+import { LeaderboardTableProps } from "@/types/type";
 
 const AnimatedCounter = ({ to }: { to: number }) => {
   const count = useMotionValue(0);
@@ -97,7 +83,7 @@ const RankBadge = ({ rank }: { rank: number }) => {
   );
 };
 
-export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users }) => {
+export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users, onRemoveUser }) => {
   const router = useRouter();
 
   if (!users || users.length === 0) return null;
@@ -133,9 +119,19 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users }) => 
             <motion.div
               key={user.username + index}
               variants={item}
-              className="glass-card flex items-center justify-center p-6 border-[var(--danger)]/20 min-h-[120px]"
+              className="glass-card flex items-center justify-center p-6 border-[var(--danger)]/20 min-h-[120px] relative overflow-hidden"
             >
-              <p className="text-[var(--danger)] font-medium text-[13px] text-center">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveUser(user.username);
+                }}
+                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-all z-20"
+                aria-label="Remove user"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+              <p className="text-[var(--danger)] font-medium text-[13px] text-center px-4">
                 {user.error}
               </p>
             </motion.div>
@@ -167,12 +163,23 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users }) => 
                 e.currentTarget.style.transform = "";
               }}
             >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveUser(user.username);
+                }}
+                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 z-20"
+                aria-label={`Remove ${user.username}`}
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+
               <div className="mb-5">
                 <RankBadge rank={rank} />
               </div>
 
               <div className="flex items-center gap-4 mb-5">
-                <div className="avatar-ring">
+                <div className="avatar-ring w-20">
                   <img
                     src={user.avatar}
                     alt={user.username}
@@ -183,8 +190,10 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users }) => 
                   <h2 className="text-[17px] font-semibold tracking-tight text-white truncate">
                     {user.username}
                   </h2>
-                  <p className="text-[13px] text-white/55 font-medium">
-                    <AnimatedCounter to={user.solvedProblem} /> problems solved
+                  <p className="text-[13px] text-white/55 font-medium flex items-center gap-2">
+                    <span><AnimatedCounter to={user.solvedProblem} /> problems solved</span>
+                    <span className="w-1 h-1 rounded-full bg-white/20" />
+                    <span> {user.avgQuestionsPerDay !== undefined ? user.avgQuestionsPerDay : 0} submissions/day</span>
                   </p>
                 </div>
               </div>
