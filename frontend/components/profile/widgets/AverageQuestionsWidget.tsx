@@ -32,7 +32,7 @@ export const AverageQuestionsWidget = ({ user }: WidgetProps) => {
   }, [user.calendar, days]);
 
   return (
-    <CardTiltInner className="relative h-full flex flex-col justify-between min-h-[220px]" senstivity={300}>
+    <CardTiltInner className="overflow-visible relative h-full flex flex-col justify-between min-h-[220px]" senstivity={300}>
       <div className="flex items-start justify-between mb-4">
         <div>
           <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-3">

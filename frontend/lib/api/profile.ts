@@ -2,7 +2,7 @@ import { ExpandedUserProfile, SubmissionCalendar } from "../../types/type";
 
 export async function fetchLeetCodeProfile(username: string): Promise<ExpandedUserProfile> {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-  const BASE = `${API_URL}/api/leetcode/profile/${username}`;
+  const BASE = `${API_URL}/leetcode/profile/${username}`;
 
   try {
     const res = await fetch(BASE);

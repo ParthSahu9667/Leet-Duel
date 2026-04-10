@@ -4,95 +4,21 @@ import React, { useState, useEffect } from "react";
 import { SearchBar } from "./SearchBar";
 import { LeaderboardTable } from "./LeaderboardTable";
 import { RankedUser } from "@/types/type";
+import { useDashboardState } from "../../hooks/useDashboardState";
 import { motion } from "framer-motion";
 import { Swords, ArrowDown } from "lucide-react";
 
 export const Dashboard = () => {
-  const [usernames, setUsernames] = useState<string[]>([]);
-  const [users, setUsers] = useState<RankedUser[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedResults = localStorage.getItem("leetduel_results");
-    const savedNames = localStorage.getItem("leetduel_usernames");
-    const savedHasSearched = localStorage.getItem("leetduel_has_searched");
-    
-    if (savedResults) {
-      try {
-        setUsers(JSON.parse(savedResults));
-      } catch (e) {
-        console.error("Failed to parse saved results");
-      }
-    }
-
-    if (savedNames) {
-        try {
-          setUsernames(JSON.parse(savedNames));
-        } catch (e) {
-          console.error("Failed to parse saved names");
-        }
-      }
-    
-    if (savedHasSearched === "true") {
-      setHasSearched(true);
-    }
-    setIsLoaded(true);
-  }, []);
-
-  // Save usernames
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("leetduel_usernames", JSON.stringify(usernames));
-    }
-  }, [usernames, isLoaded]);
-
-  // Save results
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("leetduel_results", JSON.stringify(users));
-      localStorage.setItem("leetduel_has_searched", hasSearched ? "true" : "false");
-    }
-  }, [users, hasSearched, isLoaded]);
-
-  const handleSearch = async (userList: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const res = await fetch(
-        `${apiUrl}/api/compare?users=${encodeURIComponent(userList)}`
-      );
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to fetch comparison data");
-      }
-      const data: RankedUser[] = await res.json();
-      
-      setUsers(data);
-      setHasSearched(true);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRemoveUser = (username: string) => {
-    // Remove from both lists
-    const updatedUsers = users.filter(u => u.username !== username);
-    const updatedUsernames = usernames.filter(u => u !== username);
-    
-    setUsers(updatedUsers);
-    setUsernames(updatedUsernames);
-    
-    if (updatedUsers.length === 0) {
-      setHasSearched(false);
-    }
-  };
+  const {
+    usernames,
+    setUsernames,
+    users,
+    isLoading,
+    error,
+    hasSearched,
+    handleSearch,
+    handleRemoveUser,
+  } = useDashboardState();
 
   return (
     <motion.div

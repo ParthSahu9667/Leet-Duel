@@ -1,4 +1,4 @@
-import { RankedUser } from '../types';
+import { RankedUser } from '../types/index.type';
 import { LeetCode } from 'leetcode-query';
 
 const leetcode = new LeetCode();
@@ -8,11 +8,11 @@ export const fetchUserStats = async (username: string): Promise<RankedUser> => {
         const user = await leetcode.user(username);
 
         if (!user || user.matchedUser === null) {
-            return { 
-                username, 
+            return {
+                username,
                 solvedProblem: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0,
                 avatar: '', name: '', ranking: 0, reputation: 0,
-                error: `User ${username} not found.` 
+                error: `User ${username} not found.`
             };
         }
 
@@ -25,23 +25,23 @@ export const fetchUserStats = async (username: string): Promise<RankedUser> => {
         const easySolved = submitStats.find((s: any) => s.difficulty === 'Easy')?.count || 0;
         const mediumSolved = submitStats.find((s: any) => s.difficulty === 'Medium')?.count || 0;
         const hardSolved = submitStats.find((s: any) => s.difficulty === 'Hard')?.count || 0;
-        
+
         let avgQuestionsPerDay = 0;
-        
+
         // Calculate 30 day avg directly
         if (matchedUser.submissionCalendar) {
             try {
                 const parsedCal = JSON.parse(matchedUser.submissionCalendar);
                 const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-                
+
                 let sum = 0;
                 Object.keys(parsedCal).forEach((tsStr) => {
                     const ts = parseInt(tsStr) * 1000;
                     if (ts >= thirtyDaysAgo) {
-                       sum += parsedCal[tsStr]; 
+                        sum += parsedCal[tsStr];
                     }
                 });
-                
+
                 avgQuestionsPerDay = sum / 30;
             } catch (e) {
                 console.warn(`Failed to parse submission calendar for ${username}`);

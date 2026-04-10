@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ExpandedUserProfile } from "../../../../types/type";
+import { ExpandedUserProfile } from "../../../types/type";
 import { CardTiltInner } from "../CardTiltInner";
 import { TrendingUp, TrendingDown, Activity, Trophy, Hash } from "lucide-react";
 
@@ -11,19 +11,19 @@ export const ContestMomentumWidget = ({ user }: { user: ExpandedUserProfile }) =
     // Reversing it ensures it plots chronologically from left (oldest) to right (newest).
     const rawContests = user.contests || [];
     const contests = [...rawContests].reverse();
-    
+
     const count = contests.length;
-    
+
     if (count === 0) return { trend: "flat", isUp: true, delta: 0, peak: user.currentRating, areaPoints: "", lineSegments: [], lastPoint: null };
 
     // Now that the array is oldest-first, the latest contest is correctly at the end.
     const latest = contests[count - 1];
     const previous = count > 1 ? contests[count - 2] : latest;
-    
+
     const delta = latest.rating - previous.rating;
     const isUp = delta >= 0;
     const peak = Math.max(...contests.map((c) => c.rating), user.currentRating);
-    
+
     const minM = Math.min(...contests.map((c) => c.rating)) - 20;
     const maxM = Math.max(...contests.map((c) => c.rating)) + 20;
     const denominator = maxM - minM || 1;
@@ -53,11 +53,11 @@ export const ContestMomentumWidget = ({ user }: { user: ExpandedUserProfile }) =
     const points = coords.map(c => `${c.x},${c.y}`).join(' ');
     const areaPoints = `0,100 ${points} 100,100`;
 
-    return { 
-      trend: isUp ? "up" : "down", 
-      isUp, 
-      delta, 
-      peak, 
+    return {
+      trend: isUp ? "up" : "down",
+      isUp,
+      delta,
+      peak,
       areaPoints,
       lineSegments,
       lastPoint: coords[coords.length - 1]
@@ -65,7 +65,7 @@ export const ContestMomentumWidget = ({ user }: { user: ExpandedUserProfile }) =
   }, [user.contests, user.currentRating]);
 
   const { isUp, delta, peak, areaPoints, lineSegments, lastPoint } = insights;
-  
+
   // Variables for overall trend (used for text, background, and the graph area)
   const colorVar = isUp ? 'var(--success)' : 'var(--danger)';
   const textColor = isUp ? 'text-[var(--success)]' : 'text-[var(--danger)]';
@@ -82,7 +82,7 @@ export const ContestMomentumWidget = ({ user }: { user: ExpandedUserProfile }) =
           </span>
         </div>
         <span className={`text-xs px-2.5 py-1 rounded-full font-bold border flex items-center gap-1 ${bgColor} ${textColor} ${borderColor}`}>
-          {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />} 
+          {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
           Top {user.ratingPercentile}%
         </span>
       </div>
@@ -115,35 +115,35 @@ export const ContestMomentumWidget = ({ user }: { user: ExpandedUserProfile }) =
               <stop offset="100%" stopColor={colorVar} stopOpacity="0.0" />
             </linearGradient>
           </defs>
-          
-          <polygon 
-            points={areaPoints} 
-            fill="url(#spark-gradient)" 
+
+          <polygon
+            points={areaPoints}
+            fill="url(#spark-gradient)"
           />
-          
+
           {/* Multi-colored line segments replacing the single polyline */}
           {lineSegments.map((segment, index) => (
-            <line 
+            <line
               key={index}
-              x1={segment.x1} 
-              y1={segment.y1} 
-              x2={segment.x2} 
-              y2={segment.y2} 
-              stroke={segment.isUp ? 'var(--success)' : 'var(--danger)'} 
-              strokeWidth="3" 
-              strokeLinecap="round" 
-              className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" 
+              x1={segment.x1}
+              y1={segment.y1}
+              x2={segment.x2}
+              y2={segment.y2}
+              stroke={segment.isUp ? 'var(--success)' : 'var(--danger)'}
+              strokeWidth="3"
+              strokeLinecap="round"
+              className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]"
             />
           ))}
-          
+
           {lastPoint && (
-            <circle 
-              cx={lastPoint.x} 
-              cy={lastPoint.y} 
-              r="2.5" 
-              fill="white" 
-              stroke={colorVar} 
-              strokeWidth="1.5" 
+            <circle
+              cx={lastPoint.x}
+              cy={lastPoint.y}
+              r="2.5"
+              fill="white"
+              stroke={colorVar}
+              strokeWidth="1.5"
             />
           )}
         </svg>

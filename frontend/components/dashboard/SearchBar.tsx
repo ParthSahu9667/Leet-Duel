@@ -5,6 +5,7 @@ import { Search, Loader2, Plus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { SearchBarProps } from "@/types/type";
+import { GlassButton } from "../shared/GlassButton";
 
 export const SearchBar: React.FC<SearchBarProps> = ({ usernames, setUsernames, onSearch, isLoading }) => {
   const [input, setInput] = useState("");
@@ -115,20 +116,20 @@ export const SearchBar: React.FC<SearchBarProps> = ({ usernames, setUsernames, o
           disabled={isLoading}
         />
 
-        <button
+        <GlassButton
           type="button"
           onClick={addUsername}
-          className="glass-button ml-2 flex items-center gap-1.5 whitespace-nowrap text-[12px] px-4 py-2 flex-shrink-0"
+          className="ml-2 flex items-center gap-1.5 whitespace-nowrap text-[12px] px-4 py-2 flex-shrink-0"
           disabled={isLoading || !input.trim()}
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add</span>
-        </button>
+        </GlassButton>
 
-        <button
+        <GlassButton
           type="button"
           onClick={handleCompare}
-          className="glass-button ml-2 flex items-center gap-2 whitespace-nowrap text-[13px] px-6 py-2.5 flex-shrink-0"
+          className="ml-2 flex items-center gap-2 whitespace-nowrap text-[13px] px-6 py-2.5 flex-shrink-0"
           disabled={isLoading || (usernames.length === 0 && !input.trim())}
         >
           {isLoading ? (
@@ -139,7 +140,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ usernames, setUsernames, o
           ) : (
             "Compare"
           )}
-        </button>
+        </GlassButton>
       </div>
 
       {usernames.length > 0 && (

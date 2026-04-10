@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExpandedUserProfile } from "../../../types/type";
-import { fetchLeetCodeProfile } from "../../../lib/api/profile";
+import { ExpandedUserProfile } from "../../types/type";
+import { useUserProfile } from "../../hooks/useUserProfile";
 
 // Import isolated widgets
 import { PlayerHeaderWidget } from "./widgets/PlayerHeaderWidget";
@@ -11,24 +11,7 @@ import { ContestMomentumWidget } from "./widgets/ContestMomentumWidget";
 import { AverageQuestionsWidget } from "./widgets/AverageQuestionsWidget";
 
 export const UserProfileExpanded = ({ username }: { username: string }) => {
-  const [user, setUser] = useState<ExpandedUserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Network fetching
-  useEffect(() => {
-    let active = true;
-    setLoading(true);
-    fetchLeetCodeProfile(username).then((data) => {
-        if (active) {
-            setUser(data);
-            setLoading(false);
-        }
-    }).catch(err => {
-        console.error("Failed to load profile", err);
-        setLoading(false);
-    });
-    return () => { active = false; };
-  }, [username]);
+  const { user, loading } = useUserProfile(username);
 
   const containerVariants = {
     hidden: { opacity: 0 },

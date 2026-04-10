@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { getMultipleUsersStats } from '../services/leetcodeService';
-import { calculatePowerScore } from '../utils/scoringAlgorithm';
-import { RankedUser } from '../types';
+import { getMultipleUsersStats } from '../services/leetcode.service';
+import { calculatePowerScore } from '../utils/scoringAlgorithm.util';
+import { RankedUser } from '../types/index.type';
 
 export const compareUsers = async (req: Request, res: Response) => {
     const usersStr = req.query.users as string;
@@ -18,10 +18,10 @@ export const compareUsers = async (req: Request, res: Response) => {
 
     try {
         const stats: RankedUser[] = await getMultipleUsersStats(usernameList);
-        
+
         const rankedUsers = stats.map(user => {
             if (user.error) {
-                return { ...user, powerScore: -1 }; 
+                return { ...user, powerScore: -1 };
             }
             const powerScore = calculatePowerScore(user.easySolved, user.mediumSolved, user.hardSolved);
             return {

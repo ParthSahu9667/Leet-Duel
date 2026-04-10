@@ -3,9 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { GlassButton } from "./GlassButton";
 
 export const NavBar = () => {
   const [scrolled, setScrolled] = useState(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -29,16 +32,22 @@ export const NavBar = () => {
           LeetDuel
         </span>
       </Link>
-      <div className="flex gap-[24px] text-[13px] text-white/60 font-medium">
+      <div className="flex items-center gap-[24px] text-[13px] text-white/60 font-medium">
         <Link href="/" className="hidden sm:inline hover:text-white/80 transition-colors cursor-pointer">
           Home
         </Link>
-        <span className="hidden sm:inline hover:text-white/80 transition-colors cursor-pointer">
-          About
-        </span>
-        <span className="hover:text-white/80 transition-colors cursor-pointer">
-          Contact
-        </span>
+        {user ? (
+          <div className="flex items-center gap-4">
+            <span className="text-white/80 font-semibold">{user.name}</span>
+            <GlassButton onClick={logout} className="!py-2 !px-4 !text-xs">
+              Sign Out
+            </GlassButton>
+          </div>
+        ) : (
+          <GlassButton href="/auth" className="!py-2 !px-4 !text-xs">
+            Sign In
+          </GlassButton>
+        )}
       </div>
     </motion.nav>
   );

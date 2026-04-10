@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAggregatedProfile } from '../controllers/leetcodeQueryController';
+import { getAggregatedProfile } from '../controllers/leetcodeQuery.controller';
 
 const router = Router();
 
