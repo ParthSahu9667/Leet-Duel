@@ -175,7 +175,7 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
       }
 
       const accessToken = jwt.sign({ id: user.id }, process.env.JWT_ACCESS_SECRET as string, { expiresIn: '15m' });
-      res.json({ accessToken });
+      res.json({ accessToken, user: { id: user.id, name: user.name, email: user.email } });
     });
   } catch (error: any) {
     res.status(500).json({ message: 'Server error during token refresh', error: error.message });

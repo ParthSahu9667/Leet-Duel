@@ -10,6 +10,7 @@ import { connectDB } from './config/db.config';
 import { compareUsers } from './controllers/compare.controller';
 import leetcodeRoutes from './routes/leetcode.route';
 import authRoutes from './routes/auth.route';
+import friendRoutes from './routes/friend.route';
 
 // Connect to MongoDB
 connectDB();
@@ -33,6 +34,9 @@ app.get('/api/compare', compareUsers);
 
 // Mount the authentication routes
 app.use('/api/auth', authRoutes);
+
+// Mount the friend routes
+app.use('/api/friends', friendRoutes);
 
 // Mount the comprehensive LeetCode API routes
 app.use('/api/leetcode', leetcodeRoutes);
