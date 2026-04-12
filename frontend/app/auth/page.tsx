@@ -56,7 +56,7 @@ export default function AuthPage() {
 
           <div className="relative z-10">
             <h2 className="text-3xl font-bold mb-2">
-              <span className="gradient-text">{isLogin ? "Welcome Back" : "Create Account"}</span>
+              <span>{isLogin ? "Welcome Back" : "Create Account"}</span>
             </h2>
             <p className="text-white/50 text-sm mb-8">
               {isLogin ? "Log in to duel your peers and track progress." : "Sign up to start tracking your LeetCode power ranking."}
