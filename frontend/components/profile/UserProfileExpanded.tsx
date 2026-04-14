@@ -30,11 +30,11 @@ export const UserProfileExpanded = ({ username }: { username: string }) => {
     // Elegant Glass Skeletons
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full animate-pulse">
-        <div className="lg:col-span-3 glass-card h-[160px] bg-white/5" />
-        <div className="glass-card h-[220px] bg-white/5" />
-        <div className="glass-card h-[220px] bg-white/5" />
-        <div className="lg:col-span-2 glass-card h-[220px] bg-white/5" />
-        <div className="lg:col-span-3 glass-card h-[200px] bg-white/5" />
+        <div className="lg:col-span-3 glass-card h-[160px]" />
+        <div className="glass-card h-[220px]" />
+        <div className="glass-card h-[220px]" />
+        <div className="lg:col-span-2 glass-card h-[220px]" />
+        <div className="lg:col-span-3 glass-card h-[200px]" />
       </div>
     );
   }

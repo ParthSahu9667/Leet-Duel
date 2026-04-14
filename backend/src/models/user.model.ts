@@ -5,6 +5,7 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   googleId?: string;
+  leetcodeUsername?: string; // Verified LeetCode username — required to compete in duels
   refreshToken?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -31,6 +32,11 @@ const userSchema = new Schema<IUser>({
     type: String,
     unique: true,
     sparse: true, // sparse allows multiple null/undefined values for unique fields
+  },
+  leetcodeUsername: {
+    type: String,
+    unique: true,
+    sparse: true, // Only set after user verifies via /account
   },
   refreshToken: {
     type: String,

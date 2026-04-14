@@ -72,7 +72,7 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, options, 
         ref={buttonRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-black/40 border border-white/10 hover:bg-white/5 text-white/80 hover:text-white text-xs font-medium rounded-lg px-3 py-1.5 outline-none focus:ring-1 focus:ring-white/20 transition-all cursor-pointer z-50 relative"
+        className="flex items-center gap-2 bg-[var(--btn-bg)] border border-[var(--glass-border)] hover:bg-[var(--btn-bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-medium rounded-lg px-3 py-1.5 outline-none focus:ring-1 focus:ring-[var(--glass-border-hover)] transition-all cursor-pointer z-50 relative"
       >
         <span>{selectedOption?.label}</span>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -95,7 +95,7 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, options, 
                 top: `${dropdownPos.top + 8}px`, // 8px gap below the button
                 right: `${dropdownPos.right}px`,
               }}
-              className="min-w-[130px] bg-[#0c0c0e]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] z-[9999] overflow-hidden"
+              className="min-w-[130px] bg-[var(--glass-strong)] backdrop-blur-xl border border-[var(--glass-border)] rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.2)] z-[9999] overflow-hidden"
             >
               <div className="py-1.5 flex flex-col">
                 {options.map((option) => (
@@ -108,8 +108,8 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, options, 
                     }}
                     className={`text-left px-3.5 py-2 text-[12px] tracking-wide font-semibold transition-all ${
                       option.value === value
-                        ? "bg-white/10 text-white pl-4"
-                        : "text-white/60 hover:bg-white/5 hover:text-white hover:pl-4"
+                        ? "bg-[var(--accent)]/10 text-[var(--text-primary)] pl-4"
+                        : "text-[var(--text-tertiary)] hover:bg-[var(--glass)] hover:text-[var(--text-primary)] hover:pl-4"
                     }`}
                   >
                     {option.label}

@@ -86,6 +86,9 @@ export const AnimatedBackground: React.FC = () => {
       timeRef.current++;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const opacityMult = isLight ? 0.9 : 1;
+
       const mx = mouseRef.current.x;
       const my = mouseRef.current.y;
 
@@ -127,17 +130,19 @@ export const AnimatedBackground: React.FC = () => {
         }
 
         // Draw particle
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius + glowBoost * 3, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 90%, 75%, ${Math.min(displayOpacity + glowBoost * 0.7, 1)})`;
-        ctx.fill();
-
-        // Outer glow
-        if (glowBoost > 0.05) {
+        if (!isLight || p.radius > 2.0) { // Reduce particle count in light mode
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.radius + glowBoost * 10, 0, Math.PI * 2);
-          ctx.fillStyle = `hsla(${p.hue}, 85%, 65%, ${glowBoost * 0.3})`;
+          ctx.arc(p.x, p.y, p.radius + glowBoost * 3, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${p.hue}, 90%, ${isLight ? '65%' : '75%'}, ${Math.min((displayOpacity + glowBoost * 0.7) * opacityMult, 1)})`;
           ctx.fill();
+  
+          // Outer glow
+          if (glowBoost > 0.05) {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius + glowBoost * 10, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${p.hue}, 85%, ${isLight ? '60%' : '65%'}, ${glowBoost * 0.3 * opacityMult})`;
+            ctx.fill();
+          }
         }
       }
 
@@ -160,7 +165,7 @@ export const AnimatedBackground: React.FC = () => {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `hsla(230, 80%, 75%, ${Math.min(alpha + mouseBoost, 0.8)})`;
+            ctx.strokeStyle = `hsla(230, 80%, ${isLight ? '35%' : '75%'}, ${Math.min((alpha + mouseBoost) * opacityMult, 0.8)})`;
             ctx.stroke();
           }
         }
@@ -169,8 +174,8 @@ export const AnimatedBackground: React.FC = () => {
       // Mouse halo
       if (mx > 0 && my > 0) {
         const gradient = ctx.createRadialGradient(mx, my, 0, mx, my, MOUSE_RADIUS * 1.3);
-        gradient.addColorStop(0, "hsla(230, 85%, 70%, 0.15)");
-        gradient.addColorStop(0.4, "hsla(230, 80%, 65%, 0.06)");
+        gradient.addColorStop(0, `hsla(230, 85%, ${isLight ? '35%' : '70%'}, ${isLight ? 0.15 : 0.15})`);
+        gradient.addColorStop(0.4, `hsla(230, 80%, ${isLight ? '30%' : '65%'}, ${isLight ? 0.06 : 0.06})`);
         gradient.addColorStop(1, "transparent");
         ctx.fillStyle = gradient;
         ctx.beginPath();
@@ -228,11 +233,20 @@ export const AnimatedBackground: React.FC = () => {
         const phase = (timeRef.current * 0.002 + (i * Math.PI * 2) / orbCount);
         const ox = canvas.width * (0.3 + 0.4 * Math.sin(phase * 0.7 + i));
         const oy = canvas.height * (0.3 + 0.4 * Math.cos(phase * 0.5 + i * 2));
-        const orbRadius = 120 + Math.sin(phase) * 40;
+        const orbRadius = isLight 
+            ? (300 + Math.sin(phase) * 100) // Larger soft blobs for light mode
+            : (120 + Math.sin(phase) * 40);
         const orbGrad = ctx.createRadialGradient(ox, oy, 0, ox, oy, orbRadius);
-        const hue = i === 0 ? 240 : i === 1 ? 280 : 190;
-        orbGrad.addColorStop(0, `hsla(${hue}, 85%, 65%, 0.12)`);
-        orbGrad.addColorStop(0.4, `hsla(${hue}, 75%, 55%, 0.05)`);
+        
+        let hue;
+        if (isLight) {
+           hue = i === 0 ? 210 : i === 1 ? 260 : 200; // soft light blue and pale purple
+        } else {
+           hue = i === 0 ? 240 : i === 1 ? 280 : 190;
+        }
+
+        orbGrad.addColorStop(0, `hsla(${hue}, ${isLight ? '70%' : '85%'}, ${isLight ? '85%' : '65%'}, ${isLight ? 0.6 : 0.12})`);
+        orbGrad.addColorStop(0.4, `hsla(${hue}, ${isLight ? '60%' : '75%'}, ${isLight ? '90%' : '55%'}, ${isLight ? 0.3 : 0.05})`);
         orbGrad.addColorStop(1, "transparent");
         ctx.fillStyle = orbGrad;
         ctx.beginPath();

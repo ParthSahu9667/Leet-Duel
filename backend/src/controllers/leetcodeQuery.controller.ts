@@ -1,32 +1,19 @@
 import { Request, Response } from 'express';
-import { LeetCode } from 'leetcode-query';
-
-const leetcode = new LeetCode();
+import { fetchLeetCodeData } from '../utils/leetcode.graphql';
 
 export const getAggregatedProfile = async (req: Request, res: Response) => {
     try {
         const { username } = req.params;
 
-        // Fetch user data via LeetCode Query
-        const user = await leetcode.user(username as string);
+        // Fetch user data via GraphQL
+        const data = await fetchLeetCodeData(username as string);
 
-        // If the user doesn't exist or we got an error, handle it gracefully
-        if (!user || user.matchedUser === null) {
+        if (!data || !data.matchedUser) {
             return res.status(404).json({ error: `User ${username} not found.` });
         }
 
-        // Fetch contest info
-        // The user() call doesn't seem to natively expose contest rating/ranking history in the same fetch
-        // We can fetch user_contest_info separately. It might return null for users with no contests.
-        let contestInfo = null;
-        try {
-            contestInfo = await leetcode.user_contest_info(username as string);
-        } catch (e) {
-            console.warn(`Could not fetch contest info for ${username}`);
-        }
-
-        const matchedUser = user.matchedUser;
-        const submitStats = matchedUser.submitStats?.acSubmissionNum || [];
+        const matchedUser = data.matchedUser;
+        const submitStats = matchedUser.submitStatsGlobal?.acSubmissionNum || [];
         const profileInfo = matchedUser.profile;
 
         // Calculate solved metrics
@@ -35,8 +22,15 @@ export const getAggregatedProfile = async (req: Request, res: Response) => {
         const mediumSolved = submitStats.find((s: any) => s.difficulty === 'Medium')?.count || 0;
         const hardSolved = submitStats.find((s: any) => s.difficulty === 'Hard')?.count || 0;
 
+        // Get total question counts
+        const allQuestions = data.allQuestionsCount || [];
+        const totalEasy = allQuestions.find((q: any) => q.difficulty === 'Easy')?.count || 0;
+        const totalMedium = allQuestions.find((q: any) => q.difficulty === 'Medium')?.count || 0;
+        const totalHard = allQuestions.find((q: any) => q.difficulty === 'Hard')?.count || 0;
+
         // Contest metrics
-        const rating = contestInfo?.userContestRanking?.rating || 0;
+        const contestInfo = data.userContestRanking;
+        const rating = contestInfo?.rating || 0;
         const powerScore = Math.floor(rating * 1.5 + totalSolved * 5);
 
         // Calendar Parsing (SubmissionCalendar is a string like "{\"1712217600\": 2}")
@@ -66,26 +60,26 @@ export const getAggregatedProfile = async (req: Request, res: Response) => {
             easySolved: easySolved,
             mediumSolved: mediumSolved,
             hardSolved: hardSolved,
-            totalEasy: 0,
-            totalMedium: 0,
-            totalHard: 0,
+            totalEasy,
+            totalMedium,
+            totalHard,
             languages: languages,
             contests: [] as any[], 
             currentRating: Math.floor(rating),
-            ratingPercentile: parseFloat(String(contestInfo?.userContestRanking?.topPercentage || "100")),
+            ratingPercentile: parseFloat(String(contestInfo?.topPercentage || "100")),
             calendar: calendarMap,
             badges: (matchedUser.badges || []).map((b: any, index: number) => ({
                 id: b.id || String(index),
-                name: b.name || b.displayName,
+                name: b.displayName || b.name,
                 iconUrl: b.icon || '',
                 category: "Participant",
                 creationDate: ''
             }))
         };
 
-        // If 'contestInfo.userContestRankingHistory' exists, we could map it to 'contests' array if needed.
-        if (contestInfo && contestInfo.userContestRankingHistory) {
-             const history = contestInfo.userContestRankingHistory.filter((c: any) => c.attended);
+        // If 'data.userContestRankingHistory' exists, we could map it to 'contests' array if needed.
+        if (data.userContestRankingHistory) {
+             const history = data.userContestRankingHistory.filter((c: any) => c.attended);
              aggregatedResult.contests = history.map((c: any) => ({
                  contestName: c.contest?.title || 'Contest',
                  rating: Math.floor(c.rating || 0),

@@ -59,6 +59,9 @@ export interface RankedUser {
   easySolved: number;
   mediumSolved: number;
   hardSolved: number;
+  totalEasy: number;
+  totalMedium: number;
+  totalHard: number;
   avgQuestionsPerDay?: number;
   error: string | null;
 }
@@ -114,3 +117,21 @@ export interface CustomDropdownProps {
   options: { label: string; value: number | string }[];
   onChange: (val: any) => void;
 }
+
+export interface Player {
+  userId: string;
+  username: string;
+  leetcodeUsername: string;
+}
+
+export interface DuelProblem {
+  title: string;
+  titleSlug: string;
+  content: string;          // HTML from LeetCode
+  difficulty: string;
+  topicTags: { name: string; slug: string }[];
+  codeSnippets: { lang: string; langSlug: string; code: string }[];
+  leetcodeUrl: string;
+}
+
+export type MatchPhase = 'idle' | 'waiting' | 'ready' | 'loading' | 'playing' | 'finished';

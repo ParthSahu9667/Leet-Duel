@@ -20,6 +20,9 @@ export interface RankedUser {
     easySolved: number;
     mediumSolved: number;
     hardSolved: number;
+    totalEasy: number;
+    totalMedium: number;
+    totalHard: number;
     avatar: string;
     name: string;
     ranking: number;

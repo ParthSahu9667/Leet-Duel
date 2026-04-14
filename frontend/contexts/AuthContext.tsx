@@ -8,6 +8,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  leetcodeUsername: string | null;
 }
 
 interface AuthContextType {
@@ -15,8 +16,9 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
-  googleLogin: (token: string) => Promise<void>;
+  googleLoginCode: (code: string, codeVerifier: string, redirectUri: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateLeetcodeUsername: (username: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,7 +37,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (response) => response,
       async (error) => {
         const prevRequest = error?.config;
-        if (error?.response?.status === 401 && !prevRequest?.sent) {
+        const isAuthRoute = prevRequest?.url?.includes('/auth/');
+        if (error?.response?.status === 401 && !prevRequest?.sent && !isAuthRoute) {
           prevRequest.sent = true;
           try {
             const { data } = await api.post('/auth/refresh');
@@ -94,8 +97,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.push('/');
   };
 
-  const googleLogin = async (token: string) => {
-    const { data } = await api.post('/auth/google', { token });
+  const googleLoginCode = async (code: string, codeVerifier: string, redirectUri: string) => {
+    const { data } = await api.post('/auth/google', { code, codeVerifier, redirectUri });
     setAccessToken(data.accessToken);
     setGlobalAccessToken(data.accessToken);
     setUser(data.user);
@@ -110,8 +113,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.push('/auth');
   };
 
+  // Called after successful LeetCode verification to update local state
+  const updateLeetcodeUsername = (username: string) => {
+    setUser(prev => prev ? { ...prev, leetcodeUsername: username } : null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, googleLogin, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, googleLoginCode, logout, updateLeetcodeUsername }}>
       {children}
     </AuthContext.Provider>
   );

@@ -14,23 +14,29 @@ export const PlayerHeaderWidget = ({ user }: WidgetProps) => {
 
       <div className="flex-1 flex flex-col md:flex-row justify-between w-full">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2">{user.username}</h1>
-          <div className="flex items-center gap-3 text-white/50 text-sm font-medium">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-[var(--text-primary)] mb-2">{user.username}</h1>
+          <div className="flex items-center gap-3 text-[var(--text-tertiary)] text-sm font-medium">
             <Flame className="w-4 h-4 text-[var(--accent)]" /> {user.totalSolved} Problems Solved
           </div>
         </div>
 
         <div className="mt-6 md:mt-0 md:text-right">
-          <p className="text-[12px] uppercase tracking-[2px] text-white/40 font-bold mb-1">Power Score</p>
+          <p className="text-[12px] uppercase tracking-[2px] text-[var(--text-muted)] font-bold mb-1">Power Score</p>
           <div className="text-5xl md:text-6xl font-bold font-mono tracking-tighter gradient-text leading-none">{user.powerScore.toLocaleString()}</div>
         </div>
       </div>
 
       {/* Progress Bars Overlaying Bottom */}
-      <div className="absolute bottom-0 left-0 w-full flex h-1.5 opacity-80">
-        <div className="bg-[#34d399] h-full" style={{ width: `${(user.easySolved / user.totalSolved) * 100}%` }} />
-        <div className="bg-[#fbbf24] h-full" style={{ width: `${(user.mediumSolved / user.totalSolved) * 100}%` }} />
-        <div className="bg-[#f87171] h-full" style={{ width: `${(user.hardSolved / user.totalSolved) * 100}%` }} />
+      <div className="absolute bottom-0 left-0 w-full flex h-1.5 opacity-80 gap-1 bg-black/20">
+        <div className="flex-1 relative bg-white/10 rounded-r-sm overflow-hidden">
+          <div className="absolute left-0 top-0 h-full bg-[#34d399]" style={{ width: `${Math.min(100, (user.easySolved / Math.max(1, user.totalEasy)) * 100)}%` }} />
+        </div>
+        <div className="flex-1 relative bg-white/10 rounded-r-sm overflow-hidden">
+          <div className="absolute left-0 top-0 h-full bg-[#fbbf24]" style={{ width: `${Math.min(100, (user.mediumSolved / Math.max(1, user.totalMedium)) * 100)}%` }} />
+        </div>
+        <div className="flex-1 relative bg-white/10 rounded-r-sm overflow-hidden">
+          <div className="absolute left-0 top-0 h-full bg-[#f87171]" style={{ width: `${Math.min(100, (user.hardSolved / Math.max(1, user.totalHard)) * 100)}%` }} />
+        </div>
       </div>
     </CardTiltInner>
   );

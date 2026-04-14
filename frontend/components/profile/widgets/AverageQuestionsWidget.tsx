@@ -35,10 +35,10 @@ export const AverageQuestionsWidget = ({ user }: WidgetProps) => {
     <CardTiltInner className="overflow-visible relative h-full flex flex-col justify-between min-h-[220px]" senstivity={300}>
       <div className="flex items-start justify-between mb-4">
         <div>
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-3">
+          <div className="w-10 h-10 rounded-xl bg-[var(--glass)] border border-[var(--glass-border)] flex items-center justify-center mb-3">
             <Calculator className="text-[#fbbf24] w-5 h-5 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
           </div>
-          <p className="text-white/50 text-xs font-bold uppercase tracking-wider">Submissions / Day</p>
+          <p className="text-[var(--text-tertiary)] text-xs font-bold uppercase tracking-wider">Submissions / Day</p>
         </div>
         
         <CustomDropdown
@@ -49,11 +49,11 @@ export const AverageQuestionsWidget = ({ user }: WidgetProps) => {
       </div>
       
       <div className="mt-auto">
-        <div className="text-[3.5rem] font-bold font-[var(--font-mono)] leading-none tracking-tight text-white gap-2 flex items-baseline">
+        <div className="text-[3.5rem] font-bold font-[var(--font-mono)] leading-none tracking-tight text-[var(--text-primary)] gap-2 flex items-baseline">
           {average.toFixed(2)}
-          <span className="text-lg text-white/30 font-medium tracking-normal">avg</span>
+          <span className="text-lg text-[var(--text-muted)] font-medium tracking-normal">avg</span>
         </div>
-        <p className="text-white/40 text-[13px] font-medium mt-2">
+        <p className="text-[var(--text-muted)] text-[13px] font-medium mt-2">
           Based on submission calendar activity.
         </p>
       </div>

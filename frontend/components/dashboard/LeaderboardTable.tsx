@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { Trophy, Crown, Medal, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -33,7 +33,7 @@ const StatBar = ({
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-[11px] font-semibold text-white/60 w-[52px] uppercase tracking-wider">
+      <span className="text-[11px] font-semibold text-[var(--text-tertiary)] w-[52px] uppercase tracking-wider">
         {label}
       </span>
       <div className="stat-bar-track flex-1">
@@ -44,7 +44,7 @@ const StatBar = ({
           transition={{ duration: 1.4, ease: [0.23, 1, 0.32, 1], delay: 0.5 }}
         />
       </div>
-      <span className="text-[12px] font-mono font-semibold text-white/80 w-[32px] text-right">
+      <span className="text-[12px] font-mono font-semibold text-[var(--text-secondary)] w-[32px] text-right">
         {value}
       </span>
     </div>
@@ -79,6 +79,50 @@ const RankBadge = ({ rank }: { rank: number }) => {
   return (
     <div className="rank-badge rank-badge-default">
       <span>#{rank}</span>
+    </div>
+  );
+};
+
+const TiltCard = ({
+  children,
+  className,
+  onClick,
+}: {
+  children: React.ReactNode;
+  className: string;
+  onClick: () => void;
+}) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current;
+    if (!card || card.getAttribute("data-tilt-locked") === "true") return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = (y - centerY) / 15;
+    const rotateY = (centerX - x) / 15;
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+  };
+
+  const handleMouseLeave = () => {
+    if (cardRef.current) {
+      cardRef.current.style.transform = "";
+      cardRef.current.removeAttribute("data-tilt-locked");
+    }
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onClick={onClick}
+      className={className}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {children}
     </div>
   );
 };
@@ -126,7 +170,7 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users, onRem
                   e.stopPropagation();
                   onRemoveUser(user.username);
                 }}
-                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-all z-20"
+                className="absolute top-4 right-4 p-1.5 rounded-full bg-[var(--btn-bg)] border border-[var(--glass-border)] text-[var(--text-tertiary)] hover:text-[var(--danger)] hover:bg-black/10 transition-all z-20"
                 aria-label="Remove user"
               >
                 <X className="w-3.5 h-3.5" />
@@ -143,36 +187,50 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users, onRem
 
         return (
           <motion.div key={user.username} variants={item}>
-            <div
+            <TiltCard
               onClick={() => router.push(`/profile/${user.username}`)}
               className={`glass-card glass-card-hover flex flex-col p-7 cursor-pointer group relative ${
                 rank === 1 ? "md:col-span-1 ring-1 ring-[#fbbf24]/15" : ""
               }`}
-              onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => {
-                const card = e.currentTarget;
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const rotateX = (y - centerY) / 15;
-                const rotateY = (centerX - x) / 15;
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                e.currentTarget.style.transform = "";
-              }}
             >
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemoveUser(user.username);
+              {/* Remove button — larger hit area, freezes tilt on hover */}
+              <div
+                className="absolute top-0 right-0 z-30 p-2"
+                onMouseEnter={(e) => {
+                  const tiltCard = e.currentTarget.parentElement;
+                  if (tiltCard) {
+                    tiltCard.setAttribute("data-tilt-locked", "true");
+                    tiltCard.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(-6px)";
+                  }
                 }}
-                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 z-20"
-                aria-label={`Remove ${user.username}`}
+                onMouseLeave={(e) => {
+                  const tiltCard = e.currentTarget.parentElement;
+                  if (tiltCard) {
+                    tiltCard.removeAttribute("data-tilt-locked");
+                  }
+                }}
               >
-                <X className="w-3.5 h-3.5" />
-              </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveUser(user.username);
+                  }}
+                  className="
+                    p-2.5 rounded-xl
+                    bg-[var(--btn-bg)] backdrop-blur-sm
+                    border border-[var(--glass-border)]
+                    text-[var(--text-tertiary)]
+                    hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20
+                    hover:shadow-[0_0_16px_rgba(239,68,68,0.15)]
+                    active:scale-90
+                    transition-all duration-200 ease-out
+                    opacity-0 group-hover:opacity-100 focus:opacity-100
+                  "
+                  aria-label={`Remove ${user.username}`}
+                >
+                  <X className="w-4 h-4" strokeWidth={2.5} />
+                </button>
+              </div>
 
               <div className="mb-5">
                 <RankBadge rank={rank} />
@@ -187,10 +245,10 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users, onRem
                   />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-[17px] font-semibold tracking-tight text-white truncate">
+                  <h2 className="text-[17px] font-semibold tracking-tight text-[var(--text-primary)] truncate">
                     {user.username}
                   </h2>
-                  <p className="text-[13px] text-white/55 font-medium flex items-center gap-2">
+                  <p className="text-[13px] text-[var(--text-tertiary)] font-medium flex items-center gap-2">
                     <span><AnimatedCounter to={user.solvedProblem} /> problems solved</span>
                     <span className="w-1 h-1 rounded-full bg-white/20" />
                     <span> {user.avgQuestionsPerDay !== undefined ? user.avgQuestionsPerDay : 0} submissions/day</span>
@@ -199,7 +257,7 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users, onRem
               </div>
 
               <div className="mb-6">
-                <p className="text-[11px] uppercase tracking-[1.5px] text-white/50 font-semibold mb-1">
+                <p className="text-[11px] uppercase tracking-[1.5px] text-[var(--text-tertiary)] font-semibold mb-1">
                   Power Score
                 </p>
                 <div className="text-[2.5rem] font-bold leading-none tracking-tight gradient-text font-[var(--font-mono)]">
@@ -208,9 +266,9 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users, onRem
               </div>
 
               <div className="flex flex-col gap-2.5">
-                <StatBar label="Easy" value={user.easySolved} total={user.solvedProblem} color="easy" />
-                <StatBar label="Med" value={user.mediumSolved} total={user.solvedProblem} color="medium" />
-                <StatBar label="Hard" value={user.hardSolved} total={user.solvedProblem} color="hard" />
+                <StatBar label="Easy" value={user.easySolved} total={user.totalEasy} color="easy" />
+                <StatBar label="Med" value={user.mediumSolved} total={user.totalMedium} color="medium" />
+                <StatBar label="Hard" value={user.hardSolved} total={user.totalHard} color="hard" />
               </div>
 
               {isTop && (
@@ -226,7 +284,7 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({ users, onRem
                   }}
                 />
               )}
-            </div>
+            </TiltCard>
           </motion.div>
         );
       })}

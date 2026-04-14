@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Search, Loader2, Plus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
 
 import { SearchBarProps } from "@/types/type";
 import { GlassButton } from "../shared/GlassButton";
@@ -11,6 +12,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({ usernames, setUsernames, o
   const [input, setInput] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { theme } = useTheme();
+  
+  const isLight = theme === 'light';
 
   const addUsername = () => {
     const trimmed = input.trim().toLowerCase();
@@ -86,17 +90,18 @@ export const SearchBar: React.FC<SearchBarProps> = ({ usernames, setUsernames, o
       </AnimatePresence>
 
       <div
-        className={`relative w-full flex items-center glass-card px-5 py-3 rounded-[20px] transition-all duration-500 ${
+        className={`relative w-full flex items-center glass-card px-6 py-4 rounded-full transition-all duration-500 ${
           isFocused
-            ? "border-[var(--accent)] bg-[rgba(255,255,255,0.05)] shadow-[0_0_0_3px_rgba(129,140,248,0.12),0_0_40px_-5px_var(--accent-glow)]"
-            : "shadow-[0_4px_30px_rgba(0,0,0,0.2)]"
+            ? "border-[var(--accent)] bg-[rgba(255,255,255,0.6)] shadow-[0_4px_30px_rgba(99,102,241,0.15)]"
+            : "shadow-[var(--card-shadow)] hover:shadow-lg"
         }`}
         onClick={() => inputRef.current?.focus()}
       >
         <Search
           className={`w-5 h-5 mr-3 transition-colors duration-300 flex-shrink-0 ${
-            isFocused ? "text-[var(--accent)]" : "text-white/45"
+            isFocused ? "text-[url(#cyan-blue-grad)]" : "text-[var(--text-tertiary)]"
           }`}
+          style={isFocused ? { color: 'var(--cyan)' } : {}}
         />
 
         <input
@@ -112,42 +117,87 @@ export const SearchBar: React.FC<SearchBarProps> = ({ usernames, setUsernames, o
               ? "Type a username and press Enter to add..."
               : "Add another username..."
           }
-          className="bg-transparent text-white outline-none w-full placeholder-white/40 font-medium text-[15px] tracking-tight"
+          className="bg-transparent text-[var(--text-primary)] outline-none w-full placeholder-[var(--input-placeholder)] font-medium text-[15px] tracking-tight"
           disabled={isLoading}
         />
 
-        <GlassButton
-          type="button"
-          onClick={addUsername}
-          className="ml-2 flex items-center gap-1.5 whitespace-nowrap text-[12px] px-4 py-2 flex-shrink-0"
-          disabled={isLoading || !input.trim()}
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Add</span>
-        </GlassButton>
+        {isLight ? (
+          <>
+            <button
+              type="button"
+              onClick={addUsername}
+              className="ml-2 flex items-center justify-center gap-1.5 whitespace-nowrap text-[14px] font-bold px-5 py-2.5 rounded-full transition-all duration-300 flex-shrink-0
+                         bg-[#e0f2fe]/50 border border-[#bae6fd]/30 hover:bg-[#e0f2fe]/80 disabled:opacity-50
+                         text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500
+                         hover:-translate-y-[2px] hover:scale-[1.03] active:scale-95 active:translate-y-0"
+              disabled={isLoading || !input.trim()}
+            >
+              <Plus stroke="url(#cyan-blue-grad-svg)" className="w-4 h-4 flex-shrink-0" />
+              <span>Add</span>
+            </button>
 
-        <GlassButton
-          type="button"
-          onClick={handleCompare}
-          className="ml-2 flex items-center gap-2 whitespace-nowrap text-[13px] px-6 py-2.5 flex-shrink-0"
-          disabled={isLoading || (usernames.length === 0 && !input.trim())}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Scanning</span>
-            </>
-          ) : (
-            "Compare"
-          )}
-        </GlassButton>
+            <button
+              type="button"
+              onClick={handleCompare}
+              className="ml-2 flex items-center justify-center gap-2 whitespace-nowrap text-[15px] font-bold px-6 py-2.5 rounded-full transition-all duration-300 flex-shrink-0
+                         bg-[#e0f2fe]/60 border border-[#bae6fd]/40 hover:bg-[#e0f2fe]/90 disabled:opacity-50 shadow-sm
+                         text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600
+                         hover:-translate-y-[2px] hover:scale-[1.03] active:scale-95 active:translate-y-0"
+              disabled={isLoading || (usernames.length === 0 && !input.trim())}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-cyan-600" />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600">Scanning</span>
+                </>
+              ) : (
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600">Compare</span>
+              )}
+            </button>
+          </>
+        ) : (
+          <>
+            <GlassButton
+              type="button"
+              onClick={addUsername}
+              className="ml-2 flex items-center gap-1.5 whitespace-nowrap text-[12px] px-4 py-2 flex-shrink-0"
+              disabled={isLoading || !input.trim()}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add</span>
+            </GlassButton>
+
+            <GlassButton
+              type="button"
+              onClick={handleCompare}
+              className="ml-2 flex items-center gap-2 whitespace-nowrap text-[13px] px-6 py-2.5 flex-shrink-0"
+              disabled={isLoading || (usernames.length === 0 && !input.trim())}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Scanning</span>
+                </>
+              ) : (
+                "Compare"
+              )}
+            </GlassButton>
+          </>
+        )}
       </div>
+
+      <svg width="0" height="0">
+        <linearGradient id="cyan-blue-grad-svg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop stopColor="#06b6d4" offset="0%" />
+          <stop stopColor="#3b82f6" offset="100%" />
+        </linearGradient>
+      </svg>
 
       {usernames.length > 0 && (
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-[12px] text-white/45 font-medium"
+          className="text-[12px] text-[var(--text-tertiary)] font-medium"
         >
           {usernames.length} user{usernames.length !== 1 ? "s" : ""} added
           {usernames.length < 2 && " — add at least one more to compare"}

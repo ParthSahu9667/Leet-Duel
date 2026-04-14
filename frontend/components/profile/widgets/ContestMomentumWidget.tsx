@@ -76,8 +76,8 @@ export const ContestMomentumWidget = ({ user }: { user: ExpandedUserProfile }) =
     <CardTiltInner className="relative p-6 flex flex-col h-full min-h-[220px]">
       <div className="flex items-center justify-between mb-4 z-10">
         <div className="flex items-center gap-2">
-          <Activity className="text-white/50 w-5 h-5" />
-          <span className="text-white/60 text-xs font-bold uppercase tracking-wider">
+          <Activity className="text-[var(--text-tertiary)] w-5 h-5" />
+          <span className="text-[var(--text-tertiary)] text-xs font-bold uppercase tracking-wider">
             Contest Rating
           </span>
         </div>
@@ -96,14 +96,14 @@ export const ContestMomentumWidget = ({ user }: { user: ExpandedUserProfile }) =
         </div>
       </div>
 
-      <div className="z-10 flex gap-4 text-white/50 text-xs font-medium mb-8">
+      <div className="z-10 flex gap-4 text-[var(--text-tertiary)] text-xs font-medium mb-8">
         <div className="flex items-center gap-1.5">
           <Trophy className="w-4 h-4 text-yellow-500/70" />
-          <span>Peak: <strong className="text-white/80">{peak}</strong></span>
+          <span>Peak: <strong className="text-[var(--text-secondary)]">{peak}</strong></span>
         </div>
         <div className="flex items-center gap-1.5">
           <Hash className="w-4 h-4 text-blue-500/70" />
-          <span>Contests: <strong className="text-white/80">{user.contests.length}</strong></span>
+          <span>Contests: <strong className="text-[var(--text-secondary)]">{user.contests.length}</strong></span>
         </div>
       </div>
 
