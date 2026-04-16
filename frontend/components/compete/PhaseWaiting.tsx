@@ -19,7 +19,8 @@ export const PhaseWaiting: React.FC<PhaseWaitingProps> = ({ roomId, handleReset 
 
   return (
     <motion.div {...slideUp(0)} className="glass-card" style={{ padding: 48, textAlign: 'center' }}>
-      <Loader2 size={40} color="var(--accent)" style={{ animation: 'spin 1.5s linear infinite', marginBottom: 24 }} />
+      <Loader2 size={40} color="var(--accent)" style={{ animation: 'spin 1.5s linear infinite', margin: '-15px auto 24px auto',
+ }} />
       <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: 'var(--text-primary)' }}>
         Waiting for opponent…
       </h2>

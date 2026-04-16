@@ -21,14 +21,15 @@ const setCookie = (res: Response, refreshToken: string) => {
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password } = req.body;
+    const  { name, email, password } = req.body;
     
     if (!name || !email || !password) {
       res.status(400).json({ message: 'Please provide all required fields' });
       return;
     }
 
-    let user = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase();
+    let user = await User.findOne({ email: normalizedEmail });
     if (user) {
       // If user exists and ALREADY has a password, reject.
       if (user.password) {
@@ -72,16 +73,16 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    let { email, password } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
       res.status(400).json({ message: 'Please provide email and password' });
       return;
     }
 
-    email = email.toLowerCase();
+    const normalizedEmail = email.toLowerCase();
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       res.status(401).json({ message: 'Invalid credentials' });
       return;

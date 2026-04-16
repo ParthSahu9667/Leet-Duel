@@ -10,9 +10,10 @@ interface PhaseReadyProps {
   difficulty: 'easy' | 'medium' | 'hard';
   setDifficulty: (diff: 'easy' | 'medium' | 'hard') => void;
   handleStartMatch: () => void;
+  isHost: boolean;
 }
 
-export const PhaseReady: React.FC<PhaseReadyProps> = ({ players, difficulty, setDifficulty, handleStartMatch }) => {
+export const PhaseReady: React.FC<PhaseReadyProps> = ({ players, difficulty, setDifficulty, handleStartMatch, isHost }) => {
   return (
     <motion.div {...slideUp(0)} className="glass-card" style={{ padding: 40 }}>
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
@@ -72,29 +73,39 @@ export const PhaseReady: React.FC<PhaseReadyProps> = ({ players, difficulty, set
                 border: `1px solid ${difficulty === d ? difficultyColors[d].border : 'var(--btn-border)'}`,
                 color: difficulty === d ? difficultyColors[d].text : 'var(--text-secondary)',
                 transform: difficulty === d ? 'scale(1.05)' : 'scale(1)',
+                opacity: isHost ? 1 : 0.6,
+                pointerEvents: isHost ? 'auto' : 'none',
               }}
+              disabled={!isHost}
             >
               {d}
             </button>
           ))}
         </div>
+        {!isHost && (
+          <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>
+            Waiting for the host to start the match...
+          </p>
+        )}
       </div>
 
-      <div style={{ textAlign: 'center' }}>
-        <button
-          id="start-match-btn"
-          className="glass-button"
-          onClick={handleStartMatch}
-          style={{
-            padding: '16px 48px', fontSize: 16, fontWeight: 700,
-            background: 'rgba(129, 140, 248, 0.15)', borderColor: 'rgba(129, 140, 248, 0.3)',
-            color: 'var(--accent)',
-          }}
-        >
-          <Swords size={18} style={{ display: 'inline', marginRight: 8, verticalAlign: 'middle' }} />
-          Start Duel
-        </button>
-      </div>
+      {isHost && (
+        <div style={{ textAlign: 'center' }}>
+          <button
+            id="start-match-btn"
+            className="glass-button"
+            onClick={handleStartMatch}
+            style={{
+              padding: '16px 48px', fontSize: 16, fontWeight: 700,
+              background: 'rgba(129, 140, 248, 0.15)', borderColor: 'rgba(129, 140, 248, 0.3)',
+              color: 'var(--accent)',
+            }}
+          >
+            <Swords size={18} style={{ display: 'inline', marginRight: 8, verticalAlign: 'middle' }} />
+            Start Duel
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 };

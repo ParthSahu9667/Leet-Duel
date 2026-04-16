@@ -8,9 +8,11 @@ import { difficultyColors, formatTime } from './shared';
 interface PhasePlayingProps {
   problem: DuelProblem | null;
   elapsedTime: number;
+  isHost: boolean;
+  handleRerollProblem: () => void;
 }
 
-export const PhasePlaying: React.FC<PhasePlayingProps> = ({ problem, elapsedTime }) => {
+export const PhasePlaying: React.FC<PhasePlayingProps> = ({ problem, elapsedTime, isHost, handleRerollProblem }) => {
   if (!problem) return null;
 
   return (
@@ -49,21 +51,37 @@ export const PhasePlaying: React.FC<PhasePlayingProps> = ({ problem, elapsedTime
           <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>
             {problem.title}
           </h2>
-          <a
-            href={problem.leetcodeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="glass-button"
-            style={{
-              padding: '10px 20px', fontSize: 13, textDecoration: 'none',
-              display: 'inline-flex', alignItems: 'center', gap: 8, flexShrink: 0,
-              background: 'rgba(52, 211, 153, 0.12)', borderColor: 'rgba(52, 211, 153, 0.3)',
-              color: '#34d399',
-            }}
-          >
-            Solve on LeetCode
-            <ExternalLink size={14} />
-          </a>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            {isHost && (
+              <button
+                className="glass-button"
+                onClick={handleRerollProblem}
+                style={{
+                  padding: '10px 20px', fontSize: 13,
+                  background: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.25)',
+                  color: '#ef4444', display: 'inline-flex', alignItems: 'center', gap: 8,
+                }}
+              >
+                <Radio size={14} />
+                Skip / Reroll
+              </button>
+            )}
+            <a
+              href={problem.leetcodeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="glass-button"
+              style={{
+                padding: '10px 20px', fontSize: 13, textDecoration: 'none',
+                display: 'inline-flex', alignItems: 'center', gap: 8, flexShrink: 0,
+                background: 'rgba(52, 211, 153, 0.12)', borderColor: 'rgba(52, 211, 153, 0.3)',
+                color: '#34d399',
+              }}
+            >
+              Solve on LeetCode
+              <ExternalLink size={14} />
+            </a>
+          </div>
         </div>
 
         {/* Tags */}

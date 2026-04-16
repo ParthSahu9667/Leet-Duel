@@ -86,6 +86,7 @@ export default function CompetePage() {
             difficulty={match.difficulty}
             setDifficulty={match.setDifficulty}
             handleStartMatch={match.handleStartMatch}
+            isHost={match.isHost}
           />
         )}
 
@@ -97,6 +98,8 @@ export default function CompetePage() {
           <PhasePlaying
             problem={match.problem}
             elapsedTime={match.elapsedTime}
+            isHost={match.isHost}
+            handleRerollProblem={match.handleRerollProblem}
           />
         )}
 

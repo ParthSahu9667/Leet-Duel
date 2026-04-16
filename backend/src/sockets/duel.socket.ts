@@ -1,9 +1,6 @@
 import { Server, Socket } from 'socket.io';
-import { LeetCode } from 'leetcode-query';
 import Duel from '../models/duel.model';
-
-// ─── LeetCode API instance ──────────────────────────────────────
-const leetcode = new LeetCode();
+import { fetchProblemsList, fetchProblemDetails, fetchRecentSubmissions } from '../utils/leetcode.graphql';
 
 // ─── Active polling intervals (keyed by roomId) ─────────────────
 // Tracks setInterval handles so we can clear them on match end.
@@ -165,10 +162,11 @@ export const duelHandler = (io: Server, socket: Socket) => {
   // ───────────────────────────────────────────────
   socket.on('start_match', async (payload: {
     roomId: string;
+    userId: string;
     difficulty: 'easy' | 'medium' | 'hard';
   }) => {
     try {
-      const { roomId, difficulty } = payload;
+      const { roomId, userId, difficulty } = payload;
 
       const duel = await Duel.findOne({ roomId, status: 'active' });
       if (!duel) {
@@ -176,67 +174,47 @@ export const duelHandler = (io: Server, socket: Socket) => {
         return;
       }
 
-      // ── Fetch problems from LeetCode by difficulty ─────────
-      const difficultyMap: Record<string, 'EASY' | 'MEDIUM' | 'HARD'> = {
-        easy: 'EASY',
-        medium: 'MEDIUM',
-        hard: 'HARD',
-      };
-
-      io.to(roomId).emit('loading_problem', {
-        message: 'Fetching a random problem from LeetCode...',
-      });
-
-      const problemList = await leetcode.problems({
-        filters: { difficulty: difficultyMap[difficulty] },
-        limit: 50,
-        offset: Math.floor(Math.random() * 200), // Random offset for variety
-      });
-
-      if (!problemList.questions || problemList.questions.length === 0) {
-        socket.emit('error', { message: `No ${difficulty} problems found on LeetCode.` });
+      if (duel.players[0].userId.toString() !== userId) {
+        socket.emit('error', { message: 'Only the room creator can start the match.' });
         return;
       }
 
-      // Pick a random problem from the fetched list
-      const randomIndex = Math.floor(Math.random() * problemList.questions.length);
-      const selectedProblem = problemList.questions[randomIndex];
-
-      // Fetch full problem details (description, code snippets, etc.)
-      const fullProblem = await leetcode.problem(selectedProblem.titleSlug);
-
-      // Update duel with the assigned problem
-      duel.problemSlug = selectedProblem.titleSlug;
-      duel.problemTitle = fullProblem.title;
-      duel.difficulty = difficulty;
-      duel.startTime = new Date();
-      await duel.save();
-
-      // Emit the problem to both players simultaneously
-      io.to(roomId).emit('problem_assigned', {
-        duelId: duel._id,
-        problem: {
-          title: fullProblem.title,
-          titleSlug: fullProblem.titleSlug,
-          content: fullProblem.content,        // HTML description
-          difficulty: fullProblem.difficulty,
-          topicTags: fullProblem.topicTags,
-          codeSnippets: fullProblem.codeSnippets,
-          leetcodeUrl: `https://leetcode.com/problems/${fullProblem.titleSlug}/`,
-        },
-        startTime: duel.startTime,
-      });
-
-      console.log(`🎯 Problem "${fullProblem.title}" (${difficulty}) assigned in room ${roomId}`);
-
-      // ── Start submission polling ───────────────────────────
-      // Poll each player's recent_submissions every 5 seconds
-      // to detect who gets "Accepted" first.
-      startSubmissionPolling(io, duel.roomId, duel.players, selectedProblem.titleSlug, duel.startTime!);
+      await assignNewProblem(io, socket, duel, difficulty);
 
     } catch (error: any) {
       console.error('❌ start_match error:', error.message);
-      socket.emit('error', { message: 'Failed to fetch problem from LeetCode. Please try again.' });
+      socket.emit('error', { message: 'Failed to start match. Please try again.' });
+    }
+  });
+
+  // ───────────────────────────────────────────────
+  // EVENT: reroll_problem
+  // Flow: Host clicks "Reroll", skips current problem fetching a new one
+  // ───────────────────────────────────────────────
+  socket.on('reroll_problem', async (payload: {
+    roomId: string;
+    userId: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+  }) => {
+    try {
+      const { roomId, userId, difficulty } = payload;
+
+      const duel = await Duel.findOne({ roomId, status: 'active' });
+      if (!duel) {
+        socket.emit('error', { message: 'No active match found for this room.' });
+        return;
+      }
+
+      if (duel.players[0].userId.toString() !== userId) {
+        socket.emit('error', { message: 'Only the room creator can reroll the problem.' });
+        return;
+      }
+
+      await assignNewProblem(io, socket, duel, difficulty);
+
+    } catch (error: any) {
+      console.error('❌ reroll_problem error:', error.message);
+      socket.emit('error', { message: 'Failed to reroll problem. Please try again.' });
     }
   });
 
@@ -247,6 +225,74 @@ export const duelHandler = (io: Server, socket: Socket) => {
     console.log(`👋 Socket disconnected: ${socket.id}`);
   });
 };
+
+// ─── Problem Assignment Helper ──────────────────────────────────
+async function assignNewProblem(io: Server, socket: Socket, duel: any, difficulty: 'easy' | 'medium' | 'hard') {
+  // Clear any existing polling loop before spinning up a new problem
+  const existingInterval = activePollers.get(duel.roomId);
+  if (existingInterval) {
+    clearInterval(existingInterval);
+    activePollers.delete(duel.roomId);
+  }
+
+  const difficultyMap: Record<string, 'EASY' | 'MEDIUM' | 'HARD'> = {
+    easy: 'EASY',
+    medium: 'MEDIUM',
+    hard: 'HARD',
+  };
+
+  io.to(duel.roomId).emit('loading_problem', {
+    message: 'Fetching a random problem from LeetCode...',
+  });
+
+  const problemList = await fetchProblemsList(
+    difficultyMap[difficulty],
+    50,
+    Math.floor(Math.random() * 200) // Random offset for variety
+  );
+
+  // Filter out premium (paid) problems so users can actually see the content
+  const freeProblems = problemList?.questions?.filter((q: any) => !q.isPaidOnly) || [];
+
+  if (freeProblems.length === 0) {
+    socket.emit('error', { message: `No free ${difficulty} problems found in this set.` });
+    return;
+  }
+
+  // Pick a random problem from the fetched free list
+  const randomIndex = Math.floor(Math.random() * freeProblems.length);
+  const selectedProblem = freeProblems[randomIndex];
+
+  // Fetch full problem details (description, code snippets, etc.)
+  const fullProblem = await fetchProblemDetails(selectedProblem.titleSlug);
+
+  // Update duel with the assigned problem
+  duel.problemSlug = selectedProblem.titleSlug;
+  duel.problemTitle = fullProblem.title;
+  duel.difficulty = difficulty;
+  duel.startTime = new Date();
+  await duel.save();
+
+  // Emit the problem to both players simultaneously
+  io.to(duel.roomId).emit('problem_assigned', {
+    duelId: duel._id,
+    problem: {
+      title: fullProblem.title,
+      titleSlug: fullProblem.titleSlug,
+      content: fullProblem.content,        // HTML description
+      difficulty: fullProblem.difficulty,
+      topicTags: fullProblem.topicTags,
+      codeSnippets: fullProblem.codeSnippets,
+      leetcodeUrl: `https://leetcode.com/problems/${fullProblem.titleSlug}/`,
+    },
+    startTime: duel.startTime,
+  });
+
+  console.log(`🎯 Problem "${fullProblem.title}" (${difficulty}) assigned in room ${duel.roomId}`);
+
+  // ── Start submission polling ───────────────────────────
+  startSubmissionPolling(io, duel.roomId, duel.players, selectedProblem.titleSlug, duel.startTime!);
+}
 
 // ─── Submission Polling Logic ───────────────────────────────────
 // Polls LeetCode's recent_submissions for both players every 5s.
@@ -300,7 +346,7 @@ function startSubmissionPolling(
       // Check each player's recent submissions in parallel
       for (const player of players) {
         try {
-          const submissions = await leetcode.recent_submissions(player.leetcodeUsername, 10);
+          const submissions = await fetchRecentSubmissions(player.leetcodeUsername, 10);
 
           // Look for an "Accepted" submission for our problem after startTime
           const accepted = submissions.find(

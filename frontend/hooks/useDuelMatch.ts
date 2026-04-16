@@ -115,10 +115,16 @@ export function useDuelMatch(user: any) {
   }, [user, joinCode]);
 
   const handleStartMatch = useCallback(() => {
-    if (!socketRef.current || !roomId) return;
+    if (!socketRef.current || !roomId || !user) return;
     setErrorMsg('');
-    socketRef.current.emit('start_match', { roomId, difficulty });
-  }, [roomId, difficulty]);
+    socketRef.current.emit('start_match', { roomId, difficulty, userId: user.id });
+  }, [roomId, difficulty, user]);
+
+  const handleRerollProblem = useCallback(() => {
+    if (!socketRef.current || !roomId || !user) return;
+    setErrorMsg('');
+    socketRef.current.emit('reroll_problem', { roomId, difficulty, userId: user.id });
+  }, [roomId, difficulty, user]);
 
   const handleReset = useCallback(() => {
     setPhase('idle');
@@ -132,6 +138,8 @@ export function useDuelMatch(user: any) {
     setMatchOverMessage('');
     setElapsedTime(0);
   }, []);
+
+  const isHost = players.length > 0 && user && players[0].userId === user.id;
 
   return {
     phase,
@@ -150,6 +158,8 @@ export function useDuelMatch(user: any) {
     handleCreateRoom,
     handleJoinRoom,
     handleStartMatch,
+    handleRerollProblem,
     handleReset,
+    isHost,
   };
 }

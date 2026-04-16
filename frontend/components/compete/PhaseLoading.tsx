@@ -10,7 +10,8 @@ interface PhaseLoadingProps {
 export const PhaseLoading: React.FC<PhaseLoadingProps> = ({ difficulty }) => {
   return (
     <motion.div {...slideUp(0)} className="glass-card" style={{ padding: 64, textAlign: 'center' }}>
-      <Loader2 size={48} color="var(--accent)" style={{ animation: 'spin 1.2s linear infinite', marginBottom: 24 }} />
+      <Loader2 size={48} color="var(--accent)" style={{ animation: 'spin 1.2s linear infinite', margin: '-15px auto 24px auto',
+ }} />
       <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
         Fetching problem from LeetCode…
       </h2>

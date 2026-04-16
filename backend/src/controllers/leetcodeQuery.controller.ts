@@ -32,7 +32,6 @@ export const getAggregatedProfile = async (req: Request, res: Response) => {
         const contestInfo = data.userContestRanking;
         const rating = contestInfo?.rating || 0;
         const powerScore = Math.floor(rating * 1.5 + totalSolved * 5);
-
         // Calendar Parsing (SubmissionCalendar is a string like "{\"1712217600\": 2}")
         let calendarMap: Record<string, number> = {};
         if (matchedUser.submissionCalendar) {
@@ -43,7 +42,7 @@ export const getAggregatedProfile = async (req: Request, res: Response) => {
                     calendarMap[dateStr] = (calendarMap[dateStr] || 0) + parsedCal[ts];
                 });
             } catch (e) {
-                console.warn(`Failed to parse submission calendar for ${username}`);
+                 console.warn(`Failed to parse submission calendar for ${username}`);
             }
         }
 

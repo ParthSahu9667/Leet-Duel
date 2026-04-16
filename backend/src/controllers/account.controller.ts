@@ -1,9 +1,7 @@
 import { Response } from 'express';
-import { LeetCode } from 'leetcode-query';
 import User from '../models/user.model';
 import { AuthRequest } from '../middlewares/auth.middleware';
-
-const leetcode = new LeetCode();
+import { fetchLeetCodeData } from '../utils/leetcode.graphql';
 
 // ─── GET /api/account/me ─────────────────────────────────────────
 // Returns the authenticated user's profile, including leetcodeUsername.
@@ -51,17 +49,17 @@ export const verifyLeetCode = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    // Verify with LeetCode API — call leetcode.user() to check if profile exists
-    const lcUser = await leetcode.user(trimmed);
+    // Verify with LeetCode API
+    const data = await fetchLeetCodeData(trimmed);
 
-    if (!lcUser || lcUser.matchedUser === null) {
+    if (!data || !data.matchedUser) {
       res.status(404).json({ message: `LeetCode user "${trimmed}" not found. Please check the username.` });
       return;
     }
 
     // Extract profile info for the response
-    const profile = lcUser.matchedUser.profile;
-    const submitStats = lcUser.matchedUser.submitStats?.acSubmissionNum || [];
+    const profile = data.matchedUser.profile;
+    const submitStats = data.matchedUser.submitStatsGlobal?.acSubmissionNum || [];
     const totalSolved = submitStats.find((s: any) => s.difficulty === 'All')?.count || 0;
 
     // Save verified username to the user document
