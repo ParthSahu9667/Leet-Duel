@@ -346,7 +346,7 @@ function startSubmissionPolling(
       // Check each player's recent submissions in parallel
       for (const player of players) {
         try {
-          const submissions = await fetchRecentSubmissions(player.leetcodeUsername, 10);
+          const submissions = await fetchRecentSubmissions(player.leetcodeUsername, 1);
 
           // Look for an "Accepted" submission for our problem after startTime
           const accepted = submissions.find(
@@ -395,7 +395,7 @@ function startSubmissionPolling(
     } catch (error: any) {
       console.error(`❌ Polling error for room ${roomId}:`, error.message);
     }
-  }, 5000); // Poll every 5 seconds
+  }, 2000); // Poll every 2 seconds
 
   activePollers.set(roomId, interval);
 }

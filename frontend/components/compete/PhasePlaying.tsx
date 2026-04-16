@@ -117,7 +117,7 @@ export const PhasePlaying: React.FC<PhasePlayingProps> = ({ problem, elapsedTime
           <p style={{ color: 'var(--text-secondary)', fontSize: 13, lineHeight: 1.6 }}>
             💡 Open the problem on LeetCode and submit your solution there.
             <br />
-            The server is automatically checking both players&apos; submissions every 5 seconds.
+            The server is automatically checking both players&apos; submissions every 2 seconds.
             <br />
             <span style={{ color: 'var(--accent)', fontWeight: 600 }}>
               First &quot;Accepted&quot; submission wins!
